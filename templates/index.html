@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f6e9c9">
+  <title>RepoBloom — Recover Your Development Context</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--cream:#f6e9c9;--paper:#fff8e8;--orange:#f15b35;--blue:#1949c7;--yellow:#f5bd45;--ink:#24251f;--muted:#777267;--line:rgba(36,37,31,.18);--green:#57965a;--red:#b83b2b}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{background:var(--cream);color:var(--ink);font-family:'Space Grotesk',sans-serif;overflow-x:hidden}
+    button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:wait;opacity:.65}
+    ::selection{background:var(--orange);color:#fff}
+    nav{height:76px;padding:0 6%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--cream);z-index:100}
+    .logo{font-family:'Syne';font-size:25px;font-weight:800;letter-spacing:-2px}.logo span{color:var(--orange)}
+    .nav-center{display:flex;gap:30px}.nav-center a{text-decoration:none;color:var(--ink);font-size:11px;font-weight:700;text-transform:uppercase;transition:.2s}.nav-center a:hover{color:var(--orange)}
+    .nav-right{display:flex;align-items:center;gap:15px}.status{font-size:10px;font-weight:700;letter-spacing:1px}.status::before{content:"";display:inline-block;width:8px;height:8px;background:var(--green);border-radius:50%;margin-right:7px}.status.offline::before{background:var(--red)}
+    .nav-button{background:var(--blue);color:#fff;border:none;padding:12px 18px;font-size:10px;font-weight:700;transition:.25s}.nav-button:hover{background:var(--orange);transform:rotate(-2deg)}
+    .hero{min-height:590px;padding:75px 8%;position:relative;overflow:hidden;display:flex;align-items:center}.hero-content{max-width:750px;position:relative;z-index:3}
+    .eyebrow{color:var(--orange);font-size:10px;letter-spacing:3px;font-weight:700;margin-bottom:28px}.hero h1{font-family:'Syne';font-size:clamp(65px,9vw,115px);line-height:.88;letter-spacing:-8px;font-weight:800}.hero h1 span{display:block;color:var(--blue);margin-left:12%}
+    .hero-description{max-width:440px;margin:35px 0 28px 13%;font-size:14px;line-height:1.9;color:#666156}.hero-actions{display:flex;gap:13px;margin-left:13%}
+    .btn{display:inline-block;text-decoration:none;padding:15px 23px;font-size:10px;font-weight:700;border:1px solid transparent;transition:.25s}.btn-orange{background:var(--orange);color:#fff}.btn-blue{border-color:var(--blue);color:var(--blue)}.btn:hover{transform:translateY(-4px) rotate(-1deg)}
+    .hero-art{width:260px;height:260px;border-radius:50%;position:absolute;right:12%;top:130px;background:linear-gradient(145deg,var(--yellow),var(--orange));box-shadow:15px 20px 0 rgba(241,91,53,.12);animation:float 6s ease-in-out infinite}
+    .hero-art::before{content:"R";position:absolute;inset:0;display:grid;place-items:center;font-family:'Syne';font-size:180px;font-weight:800;color:rgba(255,255,255,.55)}.hero-art::after{content:"";position:absolute;width:350px;height:85px;border:8px solid var(--cream);border-radius:50%;top:85px;left:-45px;transform:rotate(-25deg)}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+    .marquee{background:var(--orange);color:#fff;overflow:hidden;padding:16px 0;transform:rotate(-1deg) scale(1.02)}.marquee-track{width:max-content;display:flex;animation:move 25s linear infinite}.marquee span{font-family:'Syne';font-size:20px;font-weight:800;padding:0 30px;letter-spacing:2px}@keyframes move{to{transform:translateX(-50%)}}
+    .workspace{padding:105px 7%}.section-label{font-size:10px;color:var(--orange);font-weight:700;letter-spacing:3px;margin-bottom:17px}.section-heading{font-family:'Syne';font-size:clamp(40px,6vw,65px);line-height:.95;letter-spacing:-4px}.section-heading span{color:var(--blue)}
+    .section-description{color:var(--muted);font-size:13px;line-height:1.8;margin-top:17px;max-width:480px}.workspace-top{display:flex;justify-content:space-between;align-items:end;margin-bottom:45px;gap:20px}.workspace-tag{font-size:10px;font-weight:700;background:var(--yellow);padding:10px 14px;transform:rotate(-2deg)}
+    .connect-box{background:var(--blue);color:#fff;padding:35px;position:relative;overflow:hidden;margin-bottom:35px}.connect-box::after{content:"01";position:absolute;right:30px;top:-35px;font-family:'Syne';font-size:170px;font-weight:800;color:rgba(255,255,255,.06)}
+    .connect-box h3{font-family:'Syne';font-size:29px;margin-bottom:10px;position:relative;z-index:1}.connect-box>p{color:rgba(255,255,255,.75);font-size:12px;margin-bottom:23px;position:relative;z-index:1}
+    .connect-form{display:flex;max-width:650px;position:relative;z-index:2}.connect-form input{flex:1;min-width:0;padding:16px;border:none;outline:none;background:var(--paper);color:var(--ink);font-size:12px}.connect-form button{padding:0 23px;border:none;background:var(--orange);color:#fff;font-size:11px;font-weight:700}.connect-form button:hover{background:#d94322}
+    #connectMessage{margin-top:12px;font-size:11px;position:relative;z-index:2;line-height:1.6;min-height:18px}.message-error{color:#ffe0d7!important}.message-success{color:#d9ffd9!important}.message-info{color:rgba(255,255,255,.82)!important}
+    .api-settings{position:relative;z-index:2;margin-top:15px;max-width:650px;font-size:11px;color:rgba(255,255,255,.8)}.api-settings summary{cursor:pointer;font-weight:700;letter-spacing:.3px}.api-settings input{display:block;width:100%;margin-top:10px;padding:12px;border:0;background:var(--paper);color:var(--ink);font-size:12px;outline:none}.api-settings small{display:block;margin-top:7px;line-height:1.5;color:rgba(255,255,255,.68)}
+    .repo-area{display:grid;grid-template-columns:1fr 1fr;gap:20px}.panel{background:var(--paper);border:1px solid var(--line);padding:25px;min-width:0}.panel-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}.panel-heading h3{font-family:'Syne';font-size:19px}.panel-heading span{font-size:10px;color:var(--muted);text-align:right}
+    .empty-state{min-height:170px;display:grid;place-items:center;text-align:center;border:1px dashed var(--line);padding:25px}.empty-symbol{font-family:'Syne';font-size:40px;color:var(--orange)}.empty-state p{color:var(--muted);font-size:12px;line-height:1.7;max-width:270px}
+    .repo-list{display:grid;gap:10px}.repo-item{background:var(--cream);padding:15px;display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0}.repo-item>div:first-child{min-width:0}.repo-item strong{display:block;font-size:13px;overflow-wrap:anywhere}.repo-item small{color:var(--muted);font-size:10px;overflow-wrap:anywhere}.repo-actions{display:flex;gap:6px;flex-shrink:0}.repo-item button{border:1px solid var(--blue);color:var(--blue);background:transparent;padding:8px 10px;font-size:10px;font-weight:700}.repo-item button:hover,.repo-item button.active{background:var(--blue);color:white}.repo-state{display:inline-block;margin-top:5px;font-size:9px;font-weight:700;letter-spacing:.4px;color:var(--muted)}
+    .overview-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{background:var(--cream);padding:17px}.metric strong{display:block;font-family:'Syne';font-size:28px;color:var(--blue)}.metric span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}.overview-detail{font-size:11px;line-height:1.7;color:var(--muted);margin-top:16px;overflow-wrap:anywhere}.overview-detail strong{color:var(--ink)}
+    .recovery{background:var(--yellow);padding:105px 7%}.recovery-layout{display:grid;grid-template-columns:.8fr 1.2fr;gap:55px;align-items:start}.recovery h2{font-family:'Syne';font-size:clamp(45px,6vw,72px);line-height:.92;letter-spacing:-5px}.recovery h2 span{color:var(--blue)}.recovery-copy{font-size:13px;line-height:1.9;margin-top:22px;max-width:380px}
+    .recovery-card{background:var(--paper);padding:30px;box-shadow:10px 10px 0 rgba(36,37,31,.12)}.recovery-card label{display:block;font-family:'Syne';font-size:17px;font-weight:700;margin-bottom:13px}.recovery-card select,.recovery-card textarea{width:100%;padding:14px;border:1px solid var(--line);background:#fff;outline:none;margin-bottom:17px;font-size:12px;color:var(--ink)}.recovery-card textarea{min-height:140px;resize:vertical;line-height:1.7}.recovery-card select:focus,.recovery-card textarea:focus{border-color:var(--blue)}
+    .recovery-submit{background:var(--orange);color:#fff;border:none;padding:15px 22px;font-size:10px;font-weight:700}.recovery-submit:hover{background:var(--blue)}.recovery-note{font-size:10px;color:var(--muted);margin-top:14px;line-height:1.6;overflow-wrap:anywhere}
+    .output-section{padding:90px 7%}.output-box{background:var(--paper);border:1px solid var(--line);padding:30px;min-height:180px}.output-placeholder{text-align:center;padding:30px}.output-placeholder h3{font-family:'Syne';font-size:25px;margin-bottom:12px}.output-placeholder p{font-size:12px;color:var(--muted);line-height:1.8}#recoveryOutput{display:none;white-space:pre-wrap;overflow-wrap:anywhere;font-family:'Space Grotesk',sans-serif;font-size:13px;line-height:1.8;color:var(--ink)}
+    .result-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:17px}.result-chip{padding:7px 10px;background:var(--cream);font-size:10px;font-weight:700;color:var(--blue)}.result-content{white-space:pre-wrap;overflow-wrap:anywhere;background:#fffdf7;padding:18px;border-left:3px solid var(--orange);font-size:12px;line-height:1.8;max-height:650px;overflow:auto}
+    .intelligence{background:#e9d9b7;padding:105px 7%}.intelligence-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:45px}.intelligence-card{background:var(--cream);padding:25px;min-height:210px;transition:.3s;border:1px solid transparent}.intelligence-card:hover{transform:translateY(-7px);border-color:var(--blue);box-shadow:7px 7px 0 var(--blue)}.card-number{font-family:'Syne';font-size:38px;font-weight:800;color:var(--orange);margin-bottom:20px}.intelligence-card h3{font-family:'Syne';font-size:19px;margin-bottom:12px}.intelligence-card p{font-size:12px;color:var(--muted);line-height:1.8}
+    .core{padding:110px 7%}.core-heading{display:flex;justify-content:space-between;align-items:end;gap:25px;margin-bottom:45px}.core-heading p{max-width:350px;color:var(--muted);font-size:12px;line-height:1.8}.pipeline{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line)}.pipeline-step{padding:28px 20px;border-right:1px solid var(--line);position:relative}.pipeline-step:last-child{border:0}.pipeline-step .step{font-size:10px;color:var(--orange);font-weight:700;letter-spacing:2px;margin-bottom:35px}.pipeline-step h3{font-family:'Syne';font-size:20px;margin-bottom:12px}.pipeline-step p{color:var(--muted);font-size:11px;line-height:1.8}
+    .final{background:var(--blue);color:#fff;padding:100px 7%;text-align:center;position:relative;overflow:hidden}.final h2{font-family:'Syne';font-size:clamp(55px,10vw,110px);line-height:.9;letter-spacing:-7px;position:relative;z-index:2}.final h2 span{color:var(--yellow)}.final p{color:rgba(255,255,255,.75);font-size:13px;margin:28px 0}.final .btn{background:var(--orange);color:#fff}.final .btn:hover{background:var(--yellow);color:var(--ink)}
+    footer{background:var(--ink);color:#fff;padding:35px 7%;display:flex;justify-content:space-between;align-items:center;gap:20px}footer .logo{font-size:25px}footer p{font-size:10px;color:#aaa}
+    .reveal{opacity:0;transform:translateY(25px);transition:.7s}.reveal.visible{opacity:1;transform:translateY(0)}
+    @media(max-width:850px){.nav-center{display:none}.hero{min-height:650px;padding:65px 6%}.hero h1{font-size:clamp(60px,13vw,100px);letter-spacing:-5px}.hero h1 span{margin-left:0}.hero-description,.hero-actions{margin-left:0}.hero-art{width:190px;height:190px;right:5%;top:350px;opacity:.55}.repo-area,.recovery-layout{grid-template-columns:1fr}.intelligence-grid{grid-template-columns:1fr 1fr}.pipeline{grid-template-columns:1fr 1fr}.pipeline-step:nth-child(2){border-right:0}.pipeline-step:nth-child(1),.pipeline-step:nth-child(2){border-bottom:1px solid var(--line)}.workspace-top,.core-heading{align-items:start;flex-direction:column}}
+    @media(max-width:550px){nav{padding:0 5%}.status{display:none}.hero{min-height:600px}.hero-art{width:140px;height:140px;top:390px}.hero-art::before{font-size:100px}.connect-box{padding:25px 18px}.connect-form{flex-direction:column;gap:8px}.connect-form button{padding:15px}.intelligence-grid,.pipeline{grid-template-columns:1fr}.pipeline-step{border-right:0;border-bottom:1px solid var(--line)}.pipeline-step:last-child{border-bottom:0}.recovery-card{padding:20px}.repo-item{align-items:flex-start;flex-direction:column}.repo-actions{width:100%}.repo-actions button{flex:1}footer{flex-direction:column;text-align:center}.final h2{letter-spacing:-4px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">REPO<span>BLOOM.</span></div>
+    <div class="nav-center">
+      <a href="#workspace">Workspace</a><a href="#recovery">Context Recovery</a><a href="#intelligence">Intelligence</a><a href="#core">Bloom Core</a>
+    </div>
+    <div class="nav-right"><span class="status" id="connectionStatus">CHECKING BACKEND</span><button class="nav-button" onclick="document.querySelector('#workspace').scrollIntoView({behavior:'smooth'})">OPEN WORKSPACE ↗</button></div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-content">
+      <div class="eyebrow">THE LOST CONTEXT RECOVERY ENGINE</div>
+      <h1>CODE HAS<span>A MEMORY.</span></h1>
+      <p class="hero-description">Code shows what changed. RepoBloom helps explain why. Recover engineering decisions, understand forgotten changes, and rediscover the story behind your codebase.</p>
+      <div class="hero-actions"><a href="#workspace" class="btn btn-orange">EXPLORE WORKSPACE ↗</a><a href="#recovery" class="btn btn-blue">RECOVER CONTEXT</a></div>
+    </div>
+    <div class="hero-art" aria-hidden="true"></div>
+  </section>
+
+  <div class="marquee"><div class="marquee-track"><span>✳ REMEMBER THE WHY</span><span>✳ UNDERSTAND THE CHANGE</span><span>✳ RECOVER THE CONTEXT</span><span>✳ REMEMBER THE WHY</span><span>✳ UNDERSTAND THE CHANGE</span><span>✳ RECOVER THE CONTEXT</span></div></div>
+
+  <section class="workspace" id="workspace">
+    <div class="workspace-top">
+      <div><div class="section-label">01 — YOUR DEVELOPMENT SPACE</div><h2 class="section-heading">THE <span>WORKSPACE.</span></h2><p class="section-description">Bring your repository into RepoBloom. Start exploring the development history and the context hidden behind individual changes.</p></div>
+      <div class="workspace-tag">REPOSITORY INTELLIGENCE</div>
+    </div>
+
+    <div class="connect-box">
+      <h3>Bring your codebase.</h3>
+      <p>Connect a public GitHub repository. RepoBloom will create a project, synchronize its history and prepare it for context recovery.</p>
+      <form class="connect-form" id="connectForm">
+        <input type="url" id="repoUrl" placeholder="https://github.com/username/repository" autocomplete="url" required aria-label="GitHub repository URL">
+        <button type="submit" id="connectButton">CONNECT REPOSITORY ↗</button>
+      </form>
+      <div id="connectMessage" class="message-info" role="status" aria-live="polite">Connecting to the RepoBloom backend…</div>
+      <details class="api-settings">
+        <summary>Advanced connection settings</summary>
+        <input type="password" id="apiToken" placeholder="API access token (only if your backend requires one)" autocomplete="off" aria-label="RepoBloom API access token">
+        <small>Only enter a token when REPOBLOOM_ACCESS_TOKEN is configured on your Flask server. The token is kept in this page's memory and is not saved to local storage.</small>
+      </details>
+    </div>
+
+    <div class="repo-area">
+      <div class="panel">
+        <div class="panel-heading"><h3>Repository Library</h3><span>YOUR PROJECTS</span></div>
+        <div id="repoList"><div class="empty-state"><div><div class="empty-symbol">＋</div><p>Loading your saved repositories…</p></div></div></div>
+      </div>
+      <div class="panel" id="intelligenceOverview">
+        <div class="panel-heading"><h3>Intelligence Overview</h3><span>LIVE DATA ONLY</span></div>
+        <div class="empty-state"><div><div class="empty-symbol">⌘</div><p>Select a repository to view its actual ingested records and synchronization status.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="recovery" id="recovery">
+    <div class="recovery-layout">
+      <div><div class="section-label">02 — THE CORE EXPERIENCE</div><h2>PICK UP<br>WHERE<br><span>YOU LEFT.</span></h2><p class="recovery-copy">Forgotten why a function was changed? Unsure why authentication was refactored? Need to understand a module before modifying it? Ask RepoBloom to reconstruct the missing development context from the repository's collected evidence.</p></div>
+      <div class="recovery-card">
+        <label for="selectedRepo">Select repository</label>
+        <select id="selectedRepo"><option value="">Loading connected repositories…</option></select>
+        <label for="recoveryQuestion">What do you want to understand?</label>
+        <textarea id="recoveryQuestion" placeholder="Example: Why was authentication refactored, which files were affected, and what should I know before modifying it again?"></textarea>
+        <button class="recovery-submit" id="recoverButton" type="button">RECOVER DEVELOPMENT CONTEXT ↗</button>
+        <p class="recovery-note" id="recoveryNote">Your question will be sent to the existing RepoBloom Context Recovery API. The response will come from the configured analysis provider and stored repository evidence.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="output-section">
+    <div class="section-label">03 — RECOVERED KNOWLEDGE</div>
+    <h2 class="section-heading">THE STORY BEHIND <span>THE CODE.</span></h2>
+    <p class="section-description" style="margin-bottom:30px">Context recovery results are returned by the backend and shown below. RepoBloom does not fabricate findings when evidence is missing.</p>
+    <div class="output-box">
+      <div class="output-placeholder" id="outputPlaceholder"><h3>Waiting for context.</h3><p>Select a repository and submit a question. Recovered context and the complete backend response will appear here after analysis.</p></div>
+      <div id="recoveryOutput" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="intelligence" id="intelligence">
+    <div class="section-label">04 — BEYOND COMMIT HISTORY</div>
+    <h2 class="section-heading">UNDERSTAND THE <span>WHOLE STORY.</span></h2>
+    <p class="section-description">RepoBloom connects different dimensions of software development to rebuild a more complete picture of a project.</p>
+    <div class="intelligence-grid">
+      <div class="intelligence-card"><div class="card-number">01</div><h3>Change Intelligence</h3><p>Explore commits, diffs and related modifications. Understand how a feature or module evolved over time.</p></div>
+      <div class="intelligence-card"><div class="card-number">02</div><h3>Engineering Intent</h3><p>Reconstruct the reasoning behind implementation decisions using available development evidence.</p></div>
+      <div class="intelligence-card"><div class="card-number">03</div><h3>Developer Intelligence</h3><p>Discover contribution history, module ownership, review trails and potential knowledge handoffs.</p></div>
+      <div class="intelligence-card"><div class="card-number">04</div><h3>Impact Analysis</h3><p>Understand which files, modules and related components may be affected by a particular change.</p></div>
+      <div class="intelligence-card"><div class="card-number">05</div><h3>Knowledge Recovery</h3><p>Recover missing project context when developers return after a long break or team transition.</p></div>
+      <div class="intelligence-card"><div class="card-number">06</div><h3>Decision Trails</h3><p>Connect available discussions, reviews and repository history to understand how decisions developed.</p></div>
+    </div>
+  </section>
+
+  <section class="core" id="core">
+    <div class="core-heading"><div><div class="section-label">05 — THE INTELLIGENCE ENGINE</div><h2 class="section-heading">MEET <span>BLOOM CORE.</span></h2></div><p>A multi-stage intelligence architecture designed to transform raw repository history into understandable engineering context.</p></div>
+    <div class="pipeline">
+      <div class="pipeline-step"><div class="step">STAGE 01</div><h3>Ingest.</h3><p>Collect repository information, commits, diffs and available development metadata.</p></div>
+      <div class="pipeline-step"><div class="step">STAGE 02</div><h3>Correlate.</h3><p>Connect related changes, files, contributors and development events.</p></div>
+      <div class="pipeline-step"><div class="step">STAGE 03</div><h3>Reason.</h3><p>Analyze possible engineering intent, dependencies and change impact.</p></div>
+      <div class="pipeline-step"><div class="step">STAGE 04</div><h3>Recover.</h3><p>Build an evidence-linked context brief that helps developers continue their work.</p></div>
+    </div>
+  </section>
+
+  <section class="final"><div class="section-label" style="color:var(--yellow)">YOUR CODEBASE HAS A HISTORY.</div><h2>NEVER LOSE<br><span>THE WHY.</span></h2><p>Reconstruct the past. Understand the present. Continue building.</p><a href="#workspace" class="btn">RETURN TO WORKSPACE ↑</a></section>
+  <footer><div class="logo">REPO<span>BLOOM.</span></div><p>AI-POWERED DEVELOPER INTELLIGENCE</p><p>BUILT TO REMEMBER THE WHY.</p></footer>
+
+  <script>
+    /*
+      RepoBloom frontend integration.
+      The routes below match the Flask blueprints shown in this project:
+        GET/POST  /api/repositories/
+        POST      /api/repositories/<pid>/sync
+        GET       /api/repositories/<pid>/status
+        POST      /api/intelligence/<pid>/analyze/context_recovery
+
+      For a frontend served by the same Flask app, keep API_BASE empty.
+      If the frontend is hosted separately, set window.REPOBLOOM_API_BASE
+      to the backend origin before this script AND configure CORS on Flask.
+    */
+
+    const API_BASE = String(window.REPOBLOOM_API_BASE || '').replace(/\/$/, '');
+    const state = {
+      projects: [],
+      selectedProjectId: null,
+      syncStates: new Map(),
+      busyProjectIds: new Set()
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[char]);
+    }
+
+    function setConnectMessage(message, type = 'info') {
+      const element = $('#connectMessage');
+      element.textContent = message;
+      element.className = `message-${type}`;
+    }
+
+    function setBackendStatus(online, label) {
+      const element = $('#connectionStatus');
+      element.textContent = label || (online ? 'BACKEND CONNECTED' : 'BACKEND UNAVAILABLE');
+      element.classList.toggle('offline', !online);
+    }
+
+    function currentHeaders(extra = {}) {
+      const headers = new Headers(extra);
+      headers.set('Accept', 'application/json');
+      const token = $('#apiToken').value.trim();
+      if (token) headers.set('X-RepoBloom-Token', token);
+      return headers;
+    }
+
+    async function apiRequest(path, options = {}, acceptedStatuses = []) {
+      const headers = currentHeaders(options.headers || {});
+      if (options.body !== undefined && !headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+      }
+
+      let response;
+      try {
+        response = await fetch(`${API_BASE}${path}`, { ...options, headers });
+      } catch (error) {
+        throw new Error(`Cannot reach the RepoBloom API. Check that Flask is running and that this page is served from the backend origin. ${error.message}`);
+      }
+
+      const raw = await response.text();
+      let data = {};
+      if (raw) {
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          const preview = raw.replace(/\s+/g, ' ').slice(0, 180);
+          throw new Error(`The server returned a non-JSON response (HTTP ${response.status}). ${preview || 'Empty response'}`);
+        }
+      }
+
+      if (!response.ok && !acceptedStatuses.includes(response.status)) {
+        const detail = data.error || data.message || data.hint || `HTTP ${response.status}`;
+        throw new Error(String(detail));
+      }
+      data.__httpStatus = response.status;
+      return data;
+    }
+
+    function normalizeGitHubURL(input) {
+      let parsed;
+      try { parsed = new URL(input.trim()); }
+      catch { throw new Error('Enter a valid GitHub repository URL.'); }
+
+      if (!['https:', 'http:'].includes(parsed.protocol) || parsed.hostname.toLowerCase() !== 'github.com' || parsed.username || parsed.password) {
+        throw new Error('Use a public GitHub URL: https://github.com/owner/repository');
+      }
+
+      const parts = parsed.pathname.split('/').filter(Boolean);
+      if (parts.length < 2) throw new Error('The URL must include both an owner and repository name.');
+
+      const owner = parts[0];
+      const repository = parts[1].replace(/\.git$/i, '');
+      const validPart = /^[A-Za-z0-9_.-]{1,100}$/;
+      if (!validPart.test(owner) || !validPart.test(repository) || owner === '.' || owner === '..' || repository === '.' || repository === '..') {
+        throw new Error('The GitHub owner or repository name contains unsupported characters.');
+      }
+
+      const githubRepo = `${owner}/${repository}`;
+      return { githubRepo, name: githubRepo, url: `https://github.com/${githubRepo}` };
+    }
+
+    function projectLabel(project) {
+      return project.github_repo || project.name || `Project ${project.id}`;
+    }
+
+    function projectURL(project) {
+      if (project.github_repo) return `https://github.com/${project.github_repo}`;
+      return project.local_git_path || project.name || '';
+    }
+
+    function currentSyncState(projectId) {
+      return state.syncStates.get(Number(projectId)) || null;
+    }
+
+    function syncLabel(projectId) {
+      const status = currentSyncState(projectId);
+      if (!status) return 'SYNC STATUS NOT CHECKED';
+      if (status.running) return 'SYNCING';
+      const github = (status.sources || []).find(item => item.source === 'github');
+      if (!github) return 'NOT SYNCED YET';
+      const name = String(github.status || 'unknown').toUpperCase();
+      return github.message ? `${name} — ${github.message}` : name;
+    }
+
+    function renderProjects() {
+      const list = $('#repoList');
+      const select = $('#selectedRepo');
+
+      if (!state.projects.length) {
+        list.innerHTML = '<div class="empty-state"><div><div class="empty-symbol">＋</div><p>No repositories connected yet. Connect a GitHub repository to begin.</p></div></div>';
+        select.innerHTML = '<option value="">No connected repositories</option>';
+        return;
+      }
+
+      list.innerHTML = `<div class="repo-list">${state.projects.map(project => {
+        const id = Number(project.id);
+        const selected = id === Number(state.selectedProjectId);
+        const name = projectLabel(project);
+        const url = projectURL(project);
+        return `<div class="repo-item" data-project-id="${id}">
+          <div><strong>${escapeHTML(name)}</strong><small>${escapeHTML(url)}</small><span class="repo-state">${escapeHTML(syncLabel(id))}</span></div>
+          <div class="repo-actions">
+            <button type="button" data-action="select" class="${selected ? 'active' : ''}">OPEN ↗</button>
+            <button type="button" data-action="sync" ${state.busyProjectIds.has(id) ? 'disabled' : ''}>${state.busyProjectIds.has(id) ? 'SYNCING…' : 'SYNC'}</button>
+          </div>
+        </div>`;
+      }).join('')}</div>`;
+
+      select.innerHTML = `<option value="">Select a repository</option>${state.projects.map(project =>
+        `<option value="${Number(project.id)}">${escapeHTML(projectLabel(project))}</option>`
+      ).join('')}`;
+      if (state.selectedProjectId !== null) select.value = String(state.selectedProjectId);
+    }
+
+    function renderOverview(project, syncStatus = currentSyncState(project.id)) {
+      const panel = $('#intelligenceOverview');
+      const counts = project.record_counts || {};
+      const total = Number(project.total_records || 0);
+      const githubRecords = Number(counts.github || 0);
+      const githubState = (syncStatus?.sources || []).find(item => item.source === 'github');
+      const stateText = syncStatus?.running ? 'Synchronization in progress' : (githubState?.status || 'Not synced');
+      const lastRun = githubState?.last_run ? new Date(githubState.last_run).toLocaleString() : 'Not available';
+
+      panel.innerHTML = `<div class="panel-heading"><h3>Intelligence Overview</h3><span>LIVE BACKEND DATA</span></div>
+        <div class="overview-grid">
+          <div class="metric"><strong>${total}</strong><span>Total records</span></div>
+          <div class="metric"><strong>${githubRecords}</strong><span>GitHub records</span></div>
+        </div>
+        <div class="overview-detail"><strong>Project:</strong> ${escapeHTML(projectLabel(project))}<br>
+          <strong>Sync status:</strong> ${escapeHTML(stateText)}<br>
+          <strong>Last GitHub sync:</strong> ${escapeHTML(lastRun)}<br>
+          ${githubState?.message ? `<strong>Sync message:</strong> ${escapeHTML(githubState.message)}<br>` : ''}
+          <strong>Other source records:</strong> ${Math.max(0, total - githubRecords)}
+        </div>`;
+    }
+
+    async function loadProjects({ keepSelection = true } = {}) {
+      const data = await apiRequest('/api/repositories/');
+      const projects = Array.isArray(data.repositories) ? data.repositories : [];
+      const oldSelection = keepSelection ? Number(state.selectedProjectId) : NaN;
+      state.projects = projects;
+
+      const stillExists = projects.find(project => Number(project.id) === oldSelection);
+      if (stillExists) {
+        state.selectedProjectId = Number(stillExists.id);
+      } else if (projects.length && state.selectedProjectId === null) {
+        state.selectedProjectId = Number(projects[0].id);
+      } else if (!projects.length) {
+        state.selectedProjectId = null;
+      }
+
+      renderProjects();
+      if (state.selectedProjectId !== null) {
+        const selected = state.projects.find(project => Number(project.id) === Number(state.selectedProjectId));
+        if (selected) renderOverview(selected);
+      }
+      setBackendStatus(true, 'BACKEND CONNECTED');
+      return projects;
+    }
+
+    async function selectProject(projectId) {
+      const id = Number(projectId);
+      const project = state.projects.find(item => Number(item.id) === id);
+      if (!project) return;
+      state.selectedProjectId = id;
+      $('#selectedRepo').value = String(id);
+      renderProjects();
+      renderOverview(project);
+      try {
+        const status = await apiRequest(`/api/repositories/${id}/status`);
+        state.syncStates.set(id, status);
+        renderProjects();
+        renderOverview(project, status);
+      } catch (error) {
+        setConnectMessage(`Repository selected, but status could not be loaded: ${error.message}`, 'error');
+      }
+    }
+
+    async function syncProject(project, { announce = true } = {}) {
+      const id = Number(project.id);
+      if (state.busyProjectIds.has(id)) return;
+      if (project.is_demo) {
+        setConnectMessage('This is a demo project. The backend does not allow live synchronization for demo projects.', 'error');
+        return;
+      }
+
+      state.busyProjectIds.add(id);
+      state.syncStates.set(id, { running: true, sources: [] });
+      renderProjects();
+      if (announce) setConnectMessage(`Starting GitHub synchronization for ${projectLabel(project)}…`, 'info');
+
+      try {
+        const start = await apiRequest(`/api/repositories/${id}/sync`, {
+          method: 'POST',
+          body: JSON.stringify({ sources: ['github'] })
+        }, [409]);
+
+        if (start.__httpStatus === 409 && announce) {
+          setConnectMessage('A synchronization is already running. Tracking its progress…', 'info');
+        }
+
+        // The backend runs collection in a worker thread. Poll its existing status route;
+        // an empty first status response can simply mean the worker has not written its row yet.
+        let finalStatus = null;
+        for (let attempt = 0; attempt < 180; attempt++) {
+          await sleep(1500);
+          const status = await apiRequest(`/api/repositories/${id}/status`);
+          state.syncStates.set(id, status);
+          renderProjects();
+
+          const github = (status.sources || []).find(item => item.source === 'github');
+          if (github && !status.running && github.status !== 'running') {
+            finalStatus = status;
+            break;
+          }
+
+          if (announce && attempt % 4 === 0) {
+            setConnectMessage(`GitHub synchronization is running for ${projectLabel(project)}. RepoBloom is collecting and processing repository history…`, 'info');
+          }
+        }
+
+        if (!finalStatus) {
+          throw new Error('Synchronization is taking longer than expected. The project is saved; use SYNC to check or retry it.');
+        }
+
+        await loadProjects();
+        const refreshed = state.projects.find(item => Number(item.id) === id) || project;
+        renderOverview(refreshed, finalStatus);
+        const github = (finalStatus.sources || []).find(item => item.source === 'github');
+
+        if (github?.status === 'error') {
+          if (announce) setConnectMessage(`Project connected, but GitHub sync failed: ${github.message || 'No details returned by the collector.'}`, 'error');
+        } else {
+          if (announce) setConnectMessage(`Repository connected and synchronization finished. ${refreshed.total_records || 0} records are now stored for this project.`, 'success');
+        }
+        return finalStatus;
+      } finally {
+        state.busyProjectIds.delete(id);
+        renderProjects();
+      }
+    }
+
+    async function handleConnect(event) {
+      event.preventDefault();
+      const button = $('#connectButton');
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = 'CONNECTING…';
+
+      try {
+        const repo = normalizeGitHubURL($('#repoUrl').value);
+        setConnectMessage('Checking your existing RepoBloom projects…', 'info');
+        await loadProjects();
+
+        // Reuse an existing live project instead of creating a duplicate.
+        let project = state.projects.find(item => !item.is_demo && String(item.github_repo || '').toLowerCase() === repo.githubRepo.toLowerCase());
+        if (!project) {
+          setConnectMessage('Creating the project in the RepoBloom database…', 'info');
+          project = await apiRequest('/api/repositories/', {
+            method: 'POST',
+            body: JSON.stringify({ name: repo.name, github_repo: repo.githubRepo })
+          });
+          if (!project.id) throw new Error('The backend created no project ID. Check the POST /api/repositories/ response.');
+          state.projects.push(project);
+        } else {
+          setConnectMessage('This repository is already in your workspace. Reusing its saved project…', 'info');
+        }
+
+        state.selectedProjectId = Number(project.id);
+        $('#selectedRepo').value = String(project.id);
+        renderProjects();
+        renderOverview(project);
+        $('#repoUrl').value = '';
+
+        button.textContent = 'SYNCING…';
+        await syncProject(project);
+        await selectProject(project.id);
+      } catch (error) {
+        setBackendStatus(false, 'CONNECTION ISSUE');
+        setConnectMessage(error.message || 'Repository connection failed.', 'error');
+      } finally {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+
+    function formatRecoveryResult(data) {
+      // Preserve the complete backend result. Do not invent or infer missing findings.
+      if (typeof data === 'string') return data;
+      return JSON.stringify(data, null, 2);
+    }
+
+    async function recoverContext() {
+      const projectId = Number($('#selectedRepo').value);
+      const question = $('#recoveryQuestion').value.trim();
+      const button = $('#recoverButton');
+      const note = $('#recoveryNote');
+
+      if (!Number.isInteger(projectId) || projectId <= 0) {
+        note.textContent = 'Select a repository that has been connected to the backend first.';
+        return;
+      }
+      if (question.length < 3) {
+        note.textContent = 'Please enter a question containing at least 3 characters.';
+        $('#recoveryQuestion').focus();
+        return;
+      }
+
+      const project = state.projects.find(item => Number(item.id) === projectId);
+      if (!project) {
+        note.textContent = 'The selected project is not present in the current backend project list. Refresh the workspace and select it again.';
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = 'RECOVERING CONTEXT…';
+      note.textContent = 'Sending your question to the existing Context Recovery Engine…';
+      $('#outputPlaceholder').style.display = 'none';
+      const output = $('#recoveryOutput');
+      output.style.display = 'block';
+      output.innerHTML = '';
+      output.textContent = 'RepoBloom is analyzing the stored project context. This may take a little while…';
+
+      try {
+        const result = await apiRequest(`/api/intelligence/${projectId}/analyze/context_recovery`, {
+          method: 'POST',
+          body: JSON.stringify({ question, ai: true })
+        });
+
+        const aiUsed = result?.ai?.used;
+        const chips = [
+          `<span class="result-chip">PROJECT: ${escapeHTML(projectLabel(project))}</span>`,
+          `<span class="result-chip">AI: ${aiUsed === true ? 'USED' : aiUsed === false ? 'NOT USED' : 'STATUS IN RESPONSE'}</span>`,
+          `<span class="result-chip">BACKEND RESPONSE</span>`
+        ].join('');
+
+        output.innerHTML = `<div class="result-meta">${chips}</div><div class="result-content"></div>`;
+        output.querySelector('.result-content').textContent = formatRecoveryResult(result);
+        note.textContent = 'Analysis returned by the RepoBloom backend. Review the response and its verified facts/evidence before acting on it.';
+        document.querySelector('.output-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (error) {
+        output.textContent = `CONTEXT RECOVERY FAILED\n\n${error.message}\n\nCheck that the repository has completed GitHub synchronization, the AI provider is configured, and the API token (if required) is correct.`;
+        note.textContent = 'The backend did not return a successful context recovery result.';
+      } finally {
+        button.disabled = false;
+        button.textContent = 'RECOVER DEVELOPMENT CONTEXT ↗';
+      }
+    }
+
+    // Repository list actions use event delegation; no inline project data is injected into JS.
+    $('#repoList').addEventListener('click', async event => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const item = button.closest('[data-project-id]');
+      if (!item) return;
+      const id = Number(item.dataset.projectId);
+      const project = state.projects.find(entry => Number(entry.id) === id);
+      if (!project) return;
+
+      if (button.dataset.action === 'select') {
+        await selectProject(id);
+      } else if (button.dataset.action === 'sync') {
+        try {
+          await syncProject(project);
+          await selectProject(id);
+        } catch (error) {
+          setConnectMessage(`Synchronization failed: ${error.message}`, 'error');
+        }
+      }
+    });
+
+    $('#connectForm').addEventListener('submit', handleConnect);
+    $('#recoverButton').addEventListener('click', recoverContext);
+    $('#selectedRepo').addEventListener('change', event => {
+      if (event.target.value) selectProject(event.target.value);
+    });
+
+    // Scroll reveal
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.intelligence-card,.pipeline-step,.workspace-top,.recovery-layout').forEach(element => {
+        element.classList.add('reveal');
+        observer.observe(element);
+      });
+    }
+
+    // Load persisted projects from Flask when the page opens.
+    (async function initializeWorkspace() {
+      try {
+        await loadProjects();
+        if (state.selectedProjectId !== null) {
+          await selectProject(state.selectedProjectId);
+          setConnectMessage('Backend connected. Your saved repositories have been loaded.', 'success');
+        } else {
+          setConnectMessage('Backend connected. Enter a public GitHub repository URL to create your first project.', 'success');
+        }
+      } catch (error) {
+        setBackendStatus(false, 'BACKEND UNAVAILABLE');
+        $('#repoList').innerHTML = `<div class="empty-state"><div><div class="empty-symbol">!</div><p>${escapeHTML(error.message)}</p></div></div>`;
+        setConnectMessage(error.message, 'error');
+        $('#selectedRepo').innerHTML = '<option value="">Backend unavailable</option>';
+      }
+    })();
+  </script>
+</body>
+</html>
